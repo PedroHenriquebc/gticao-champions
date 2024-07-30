@@ -57,13 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Movimento com o dispositivo móvel
     if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', (event) => {
+        const handleDeviceOrientation = (event) => {
             const { beta, gamma } = event;
-
-            // // Rotação do container
-            // const rotateX = beta / 3;   // Reduzir a amplitude para uma rotação mais realista
-            // const rotateY = gamma / 3;  // Reduzir a amplitude para uma rotação mais realista
-            // container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 
             // Movimento do container apenas para a esquerda e direita
             const moveX = gamma / 2; // Ajuste a amplitude do movimento para ser mais suave
@@ -72,7 +67,21 @@ document.addEventListener('DOMContentLoaded', () => {
             // Movimento da imagem de fundo
             const backgroundMoveX = gamma / 2; // Ajuste a amplitude do movimento
             backgroundImage.style.transform = `translateX(${backgroundMoveX}px)`;
-        });
+        };
+
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // iOS 13+ exige permissão do usuário
+            DeviceOrientationEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('deviceorientation', handleDeviceOrientation);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Android e iOS versões anteriores
+            window.addEventListener('deviceorientation', handleDeviceOrientation);
+        }
     }
 });
 
